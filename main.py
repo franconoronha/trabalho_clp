@@ -25,7 +25,7 @@ def mandelbrot_set(ponto):
 
     ca = a # ponto incial
     cb = b
-    
+
     n = 0
     while n < max_iterations:
         aa = a * a - b * b
