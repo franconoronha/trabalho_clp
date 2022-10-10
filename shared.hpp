@@ -2,7 +2,13 @@
 #define SHARED_HPP__
 
 extern "C" {
-    __declspec(dllexport) int soma(int a, int b);
+    //Windows
+    //__declspec(dllexport) int soma(int a, int b);
+    // Mac
+    // int soma(int a, int b);
+    // Linux
+    // extern int soma(int a, int b);
+    __declspec(dllexport) int findMandelbrot (double cr, double ci, int max_iterations);
 }
 
 #endif

@@ -1,75 +1,115 @@
 from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel
 from PyQt5.QtGui import QImage, QPixmap, qRgb
+from PyQt5.QtCore import Qt
 import ctypes
 import math
 import sys
 import os
+import time
 
-if os.name == "nt":
+if os.name == "nt": #acho que tem que usar plaftorm.platform() pra mac??
     suffix = ".dll"
 else:
     suffix = ".so"
 
 path = os.getcwd() + "\\shared" + suffix
 shared = ctypes.CDLL(path)
+shared.findMandelbrot.argtypes = [ctypes.c_double, ctypes.c_double, ctypes.c_int]
 
-def mandelbrot_set(ponto):
-    # https://www.youtube.com/watch?v=6z7GQewK-Ks copiei desse video? talvez tenha coisas melhores
+def mandelbrot_set(ponto, modo):
+    # https://www.youtube.com/watch?v=6z7GQewK-Ks copiei desse video talvez tenha coisas melhores
     # tem que passar isso pro C++ depois
     # minha ideia é que tu mande os limites inferiores/superiores e resolução
     # e ele retorne uma matriz de cores RGB
     # ou então um número que possa ser mapeado pra cores
     max_iterations = 100
-    a = ponto[0] # real
-    b = ponto[1] # imaginario
-
-    ca = a # ponto incial
-    cb = b
-
     n = 0
-    while n < max_iterations:
-        aa = a * a - b * b
-        bb = 2 * a * b
-        a = aa + ca
-        b = bb + cb
 
-        if(abs(a + b) > 16):
-            break
-
+    cr, ci = ponto[0], ponto[1] 
+    zr, zi = 0, 0
+    while zr * zr + zi * zi < 4 and n < max_iterations:
+        tempr = zr * zr - zi * zi + cr
+        tempi = zr * zi
+        zi = tempi + tempi + ci
+        zr = tempr
         n += 1
 
-    bright = math.floor((n / max_iterations) * 255)
-    return bright
+    brilho = math.floor((n / max_iterations) * 255)
+    return brilho
 
-def window():
+class TelaPrincipal(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.modo = True
+        x_pos, y_pos, width, height = 300, 300, 600, 600
+
+        self.setGeometry(x_pos, y_pos, width, height)
+        self.setWindowTitle("Fractal de Mandelbrot")
+
+        self.limite_superior, self.limite_inferior = 2, -2
+        self.offset_x, self.offset_y = 0, 0
+
+        self.img_width, self.img_height = 600, 600
+        self.imageDisplay = QLabel(self)
+        self.imageDisplay.setGeometry(0, 0, self.img_width, self.img_height)
+
+        self.img = QImage(self.img_width, self.img_height, QImage.Format_RGB32)
+
+    def draw(self):
+        largura_total = self.limite_superior - self.limite_inferior
+        w_step_size = largura_total / self.img_width
+        h_step_size = largura_total / self.img_height 
+
+        for x in range(self.img_width):
+            for y in range(self.img_height):
+                base_x = self.limite_inferior + self.offset_x
+                base_y = self.limite_superior + self.offset_y
+                ponto = (base_x + x * (w_step_size) + self.offset_x, base_y - y * (h_step_size))
+                #brilho = mandelbrot_set(ponto, self.modo)
+                # primeiro teste
+                brilho = shared.findMandelbrot(ponto[0], ponto[1], 100)
+                self.img.setPixel(x, y, qRgb(brilho, brilho, brilho))
+
+        pixmap = QPixmap.fromImage(self.img)
+        self.imageDisplay.setPixmap(pixmap)
+    
+    def keyPressEvent(self, e):
+        if e.key() == Qt.Key_W:
+            start = time.time()
+            self.offset_y += 0.1
+            self.draw()
+            end = time.time()
+            print(end - start)
+        elif e.key() == Qt.Key_A:
+            start = time.time()
+            self.offset_x -= 0.1
+            self.draw()
+            end = time.time()
+            print(end - start)
+        elif e.key() == Qt.Key_S:
+            start = time.time()
+            self.offset_y -= 0.1
+            self.draw()
+            end = time.time()
+            print(end - start)
+        elif e.key() == Qt.Key_D:
+            start = time.time()
+            self.offset_x += 0.1
+            self.draw()
+            end = time.time()
+            print(end - start)
+        elif e.key() == Qt.Key_T:
+            self.modo = not self.modo
+            self.draw()
+        elif e.key() == Qt.Key_R:
+            self.offset_x, self.offset_y = 0, 0
+
+            
+def main():
     app = QApplication(sys.argv)
-    win = QMainWindow()
-    xpos, y_pos, width, height = 300, 300, 600, 600
-    win.setGeometry(xpos, y_pos, width, height)
-    win.setWindowTitle("Fractal de Mandelbrot")
-
-    img_width, img_height = 600, 600
-    img = QImage(img_width, img_height, QImage.Format_RGB32)
-
-    limite_superior = 2
-    limite_inferior = -2
-    largura_total = 4
-
-    w_step_size = largura_total / img_width
-    h_step_size = largura_total / img_height 
-
-    for x in range(img_width):
-        for y in range(img_height):
-            ponto = (limite_inferior + x * (w_step_size), limite_superior - y * (h_step_size))
-            brilho = mandelbrot_set(ponto)
-            img.setPixel(x, y, qRgb(brilho, brilho, brilho))
-
-    pixmap = QPixmap.fromImage(img)
-    imageDisplay = QLabel(win)
-    imageDisplay.setGeometry(0, 0, img_width, img_height)
-    imageDisplay.setPixmap(pixmap)
-
+    win = TelaPrincipal()
+    win.draw()
     win.show()
     sys.exit(app.exec_())
 
-window()
+main()
