@@ -1,7 +1,8 @@
+from turtle import shearfactor
 from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel
 from PyQt5.QtGui import QImage, QPixmap, qRgb
 from PyQt5.QtCore import Qt
-import ctypes
+from ctypes import *
 import math
 import sys
 import os
@@ -13,10 +14,23 @@ else:
     suffix = ".so"
 
 path = os.getcwd() + "\\shared" + suffix
-shared = ctypes.CDLL(path)
-shared.findMandelbrot.argtypes = [ctypes.c_double, ctypes.c_double, ctypes.c_int]
+shared = CDLL(path)
+shared.findMandelbrot.argtypes = [c_double, c_double, c_int]
+shared.findMandelbrot.restype = c_int
 
-def mandelbrot_set(ponto, modo):
+shared.testeArray.argtypes = [POINTER(POINTER(c_int))]
+shared.testeArray.restype = None
+shared.release.argtypes = [POINTER(c_int)]
+shared.release.restype = None
+
+p = POINTER(c_int)()
+shared.testeArray(p, 10)
+for i in range(10):
+    print(p[i])
+
+shared.release(p)
+
+def mandelbrot_set(ponto):
     # https://www.youtube.com/watch?v=6z7GQewK-Ks copiei desse video talvez tenha coisas melhores
     # tem que passar isso pro C++ depois
     # minha ideia é que tu mande os limites inferiores/superiores e resolução
@@ -60,12 +74,14 @@ class TelaPrincipal(QMainWindow):
         w_step_size = largura_total / self.img_width
         h_step_size = largura_total / self.img_height 
 
+        base_x = self.limite_inferior + self.offset_x
+        base_y = self.limite_superior + self.offset_y
+
         for x in range(self.img_width):
             for y in range(self.img_height):
-                base_x = self.limite_inferior + self.offset_x
-                base_y = self.limite_superior + self.offset_y
-                ponto = (base_x + x * (w_step_size) + self.offset_x, base_y - y * (h_step_size))
-                #brilho = mandelbrot_set(ponto, self.modo)
+
+                ponto = (base_x + x * (w_step_size), base_y - y * (h_step_size))
+                #brilho = mandelbrot_set(ponto)
                 # primeiro teste
                 brilho = shared.findMandelbrot(ponto[0], ponto[1], 100)
                 self.img.setPixel(x, y, qRgb(brilho, brilho, brilho))
