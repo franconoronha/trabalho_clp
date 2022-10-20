@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel
-from PyQt5.QtGui import QImage, QPixmap, qRgb
+from PyQt5.QtGui import QImage, QPixmap, qRgb, QIcon
 from PyQt5.QtCore import Qt
 from ctypes import *
 import sys
@@ -32,6 +32,7 @@ class TelaPrincipal(QMainWindow):
 
         self.setGeometry(x_pos, y_pos, width, height)
         self.setWindowTitle("Fractal de Mandelbrot")
+        self.setWindowIcon(QIcon("icon.png"))
 
         self.limite_superior, self.limite_inferior = 2, -2
         self.offset_x, self.offset_y = 0, 0
@@ -55,7 +56,7 @@ class TelaPrincipal(QMainWindow):
         for x in range(size):
             for y in range(size):
                 val = self.arrayMandelbrot[x * size + y]
-                self.img.setPixel(x, y, qRgb(val, val, val))
+                self.img.setPixel(x, y, qRgb(val+30, val, val+50))
 
         pixmap = QPixmap.fromImage(self.img)
         self.imageDisplay.setPixmap(pixmap)
@@ -85,11 +86,29 @@ class TelaPrincipal(QMainWindow):
             self.draw()
             end = time.time()
             print(end - start)
+        elif e.key() == Qt.Key_Z:
+            start = time.time()
+            self.limite_inferior -= self.limite_inferior * 0.05
+            self.limite_superior -= self.limite_superior * 0.05
+            self.offset_x -= 0.05
+            self.draw()
+            end = time.time()
+            print(end - start)
+        elif e.key() == Qt.Key_X:
+            start = time.time()
+            self.limite_inferior += self.limite_inferior * 0.05
+            self.limite_superior += self.limite_superior * 0.05
+            self.offset_x += 0.05
+            self.draw()
+            end = time.time()
+            print(end - start)
         elif e.key() == Qt.Key_T:
             self.modo = not self.modo
             self.draw()
         elif e.key() == Qt.Key_R:
             self.offset_x, self.offset_y = 0, 0
+            self.limite_superior, self.limite_inferior = 2, -2
+            self.draw()
 
     def closeEvent(self, event):
         shared.release(self.arrayMandelbrot)
