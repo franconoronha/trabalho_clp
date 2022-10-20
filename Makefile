@@ -1,21 +1,17 @@
-ifeq ($(OS),Windows_NT)     # is Windows_NT on XP, 2000, 7, Vista, 10...
-    target := shared.dll
+ifeq ($(OS),Windows_NT)
+    compile_command := g++ -fPIC --shared -static -o shared.dll shared.cpp
+    run_command := python main.py
 else
-    detected_OS := $(shell uname)  # same as "uname -s"
-	ifeq (detected_OS, Darwin)
-		target := shared.dylib
-	else
-		target := shared.so
-	endif
+    compile_command := g++ -fPIC --shared -o shared.so shared.cpp
+    run_command := python3 main.py
 endif
 
 install:
 	pip install PyQt5
-	g++ -fPIC --shared -static -o shared.dll shared.cpp
+	$(compile_command)
 
 compile:
-	g++ -fPIC --shared -static -o shared.dll shared.cpp
+	$(compile_command)
 
 run:
-	python main.py
-
+	$(run_command)

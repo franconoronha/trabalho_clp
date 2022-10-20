@@ -6,14 +6,12 @@ import sys
 import os
 import time
 
-if sys.platform.startswith("linux"):
-    suffix = ".so"
-elif sys.platform == "darwin":
-    suffix = ".dylib"
+if sys.platform == "win32":
+    lib_file = "\\shared.dll"
 else:
-    suffix = ".dll"
+    lib_file = "/shared.so"
 
-path = os.getcwd() + "\\shared" + suffix
+path = os.getcwd() + lib_file
 shared = CDLL(path)
 
 shared.createArray.argtypes = [POINTER((POINTER(c_int))), c_int]
