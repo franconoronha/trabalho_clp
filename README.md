@@ -6,6 +6,7 @@
 * shared.hpp - Cabeçalho da biblioteca dinâmica
 * Makefile - Scripts para instalação e execução
 * main.py - Arquivo principal do programa
+* Documento.pdf - Documentação do projeto
 
 ## Requisitos
 * Python3 64 bits
