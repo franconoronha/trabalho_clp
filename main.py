@@ -101,6 +101,20 @@ class TelaPrincipal(QMainWindow):
             self.draw()
             end = time.time()
             print(end - start)
+        elif e.key() == Qt.Key_C:
+            start = time.time()
+            self.limite_inferior -= self.limite_inferior * 0.8
+            self.limite_superior -= self.limite_superior * 0.8
+            self.draw()
+            end = time.time()
+            print(end - start)
+        elif e.key() == Qt.Key_V:
+            start = time.time()
+            self.limite_inferior += self.limite_inferior * 0.8
+            self.limite_superior += self.limite_superior * 0.8
+            self.draw()
+            end = time.time()
+            print(end - start)
         elif e.key() == Qt.Key_T:
             self.modo = not self.modo
             self.draw()
