@@ -7,7 +7,7 @@ else
 endif
 
 install:
-	pip install PyQt5
+	sudo apt install python3-pyqt5
 	$(compile_command)
 
 compile:
