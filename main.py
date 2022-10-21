@@ -28,6 +28,7 @@ class TelaPrincipal(QMainWindow):
     def __init__(self):
         super().__init__()
         self.modo = True
+        
         x_pos, y_pos, width, height = 300, 300, 600, 600 # manter width = height
 
         self.setGeometry(x_pos, y_pos, width, height)
