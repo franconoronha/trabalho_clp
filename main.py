@@ -28,7 +28,7 @@ class TelaPrincipal(QMainWindow):
     def __init__(self):
         super().__init__()
         self.modo = True
-        
+
         x_pos, y_pos, width, height = 300, 300, 600, 600 # manter width = height
 
         self.setGeometry(x_pos, y_pos, width, height)
@@ -57,7 +57,7 @@ class TelaPrincipal(QMainWindow):
         for x in range(size):
             for y in range(size):
                 val = self.arrayMandelbrot[x * size + y]
-                self.img.setPixel(x, y, qRgb(val+30, val, val+50))
+                self.img.setPixel(x, y, qRgb(val, val, val))
 
         pixmap = QPixmap.fromImage(self.img)
         self.imageDisplay.setPixmap(pixmap)
@@ -65,25 +65,25 @@ class TelaPrincipal(QMainWindow):
     def keyPressEvent(self, e):
         if e.key() == Qt.Key_W:
             start = time.time()
-            self.offset_y += 0.1
+            self.offset_y += self.limite_superior * 0.1
             self.draw()
             end = time.time()
             print(end - start)
         elif e.key() == Qt.Key_A:
             start = time.time()
-            self.offset_x -= 0.1
+            self.offset_x -= self.limite_superior * 0.1
             self.draw()
             end = time.time()
             print(end - start)
         elif e.key() == Qt.Key_S:
             start = time.time()
-            self.offset_y -= 0.1
+            self.offset_y -= self.limite_superior * 0.1
             self.draw()
             end = time.time()
             print(end - start)
         elif e.key() == Qt.Key_D:
             start = time.time()
-            self.offset_x += 0.1
+            self.offset_x += self.limite_superior * 0.1
             self.draw()
             end = time.time()
             print(end - start)
@@ -91,7 +91,6 @@ class TelaPrincipal(QMainWindow):
             start = time.time()
             self.limite_inferior -= self.limite_inferior * 0.05
             self.limite_superior -= self.limite_superior * 0.05
-            self.offset_x -= 0.05
             self.draw()
             end = time.time()
             print(end - start)
@@ -99,7 +98,6 @@ class TelaPrincipal(QMainWindow):
             start = time.time()
             self.limite_inferior += self.limite_inferior * 0.05
             self.limite_superior += self.limite_superior * 0.05
-            self.offset_x += 0.05
             self.draw()
             end = time.time()
             print(end - start)
